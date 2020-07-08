@@ -62,6 +62,8 @@ Configure droplets and install Kubernetes (packages version 1.18.5-00):
 TF_HOSTNAME_KEY_NAME=name TF_STATE=.  ansible-playbook -i ./terraform-inventory k8s-install.yml
 ```
 
+`kubeadm init` is using `ipv4_address_private` of master node from DO vps for flag `--apiserver-advertise-address`.
+
 After completing the playbook, you can connect to the master by user `kuber` and  view the cluster:
 
 ```bash
