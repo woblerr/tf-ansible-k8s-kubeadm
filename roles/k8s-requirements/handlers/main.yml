@@ -1,0 +1,12 @@
+---
+- name: restart ssh
+  service:
+     name: sshd
+     state: restarted
+- name: restart docker
+  systemd:
+    name: docker
+    enabled: yes
+    masked: no
+    state: restarted
+    daemon_reload: yes

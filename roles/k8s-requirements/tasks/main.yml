@@ -1,0 +1,12 @@
+---
+- name: Test ssh for "{{ os_user }}"
+  ping: 
+  ignore_unreachable: true
+  register: test_ssh
+- import_tasks: os-configure.yml
+  become: true
+  remote_user: root
+  when:  test_ssh is unreachable
+- import_tasks: k8s-dependencies.yml
+- name: Execute handlers
+  meta: "flush_handlers"

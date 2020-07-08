@@ -1,0 +1,7 @@
+---
+- name: Join node to cluster
+  shell: "{{ hostvars[groups['master'][0]]['join_command'] }} > node_joined.log"
+  become: true
+  args:
+    chdir: /home/{{os_user}}
+    creates: node_joined.log

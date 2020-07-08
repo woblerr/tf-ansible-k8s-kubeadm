@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: Destroy servers in DO
+    terraform:
+      project_path: "{{ playbook_dir }}"
+      state: absent
+    register: result
+  - debug: var=result.stdout_lines

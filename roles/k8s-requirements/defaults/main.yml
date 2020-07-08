@@ -1,0 +1,3 @@
+k8s_version: 1.18.5-00
+kube_apt_key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+kube_repo: deb http://apt.kubernetes.io/ kubernetes-xenial main

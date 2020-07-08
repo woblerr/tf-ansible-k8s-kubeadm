@@ -1,0 +1,11 @@
+---
+- hosts: all
+  gather_facts: no
+  vars:
+    os_user: kuber
+  remote_user: "{{os_user}}"
+  become: yes
+  roles:
+    - { role: k8s-requirements }
+    - { role: k8s-master, when:  "inventory_hostname | regex_search(\"master-[0-9]\")" }
+    - { role: k8s-node, when: "inventory_hostname | regex_search(\"node-[0-9]\")" }

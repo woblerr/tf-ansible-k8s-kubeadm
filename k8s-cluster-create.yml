@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    tf_inventory_ver: 0.9
+    tf_inventory_src: "https://github.com/adammck/terraform-inventory/releases/download/v{{tf_inventory_ver}}/terraform-inventory_{{tf_inventory_ver}}_linux_amd64.zip"
+  tasks:
+  - name: Create servers in DO
+    terraform:
+      project_path: "{{playbook_dir}}"
+      state: present
+    register: result
+  - debug: var=result.outputs
+  - name: Unzip terraform-inventory
+    unarchive:
+      src: "{{tf_inventory_src}}"
+      dest: "{{playbook_dir}}"
+      remote_src: yes

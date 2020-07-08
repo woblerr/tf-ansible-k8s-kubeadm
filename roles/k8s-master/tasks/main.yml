@@ -1,0 +1,40 @@
+---
+- name: Initialize the cluster
+  become: yes
+  shell: kubeadm init --apiserver-advertise-address={{ hostvars[groups['master'][0]].ipv4_address_private }} --pod-network-cidr=10.244.0.0/16 > cluster_initialized.log
+  args:
+    chdir: "/home/{{os_user}}"
+    creates: cluster_initialized.log
+- name: Change owner for log
+  become: yes
+  file:
+    path: "/home/{{os_user}}/cluster_initialized.log"
+    owner: "{{os_user}}"
+    group: docker
+- name: Create .kube directory
+  become: yes
+  become_user: "{{ os_user }}"
+  file:
+    path: "/home/{{ os_user }}/.kube"
+    state: directory
+    mode: '0755'
+- name: Copy admin.conf to user's kube config
+  copy:
+    src: "/etc/kubernetes/admin.conf"
+    dest: "/home/{{ os_user }}/.kube/config"
+    remote_src: yes
+    owner: "{{ os_user }}"
+- name: Install Pod network
+  become: yes
+  become_user: "{{os_user}}"
+  shell: kubectl apply -f {{ flannel_src }} > pod_network_setup.log
+  args:
+    chdir: /home/{{ os_user}}
+    creates: pod_network_setup.log
+- name: Get join command
+  shell: kubeadm token create --print-join-command
+  register: join_command_raw
+  changed_when: false
+- name: set join command
+  set_fact:
+    join_command: "{{ join_command_raw.stdout_lines[0] }}"
