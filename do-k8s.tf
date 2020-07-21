@@ -58,6 +58,8 @@ resource "digitalocean_vpc" "k8s_vpc" {
   region   = var.do_region
 }
 
+##############################
+
 resource "digitalocean_droplet" "master" {
   count = var.master_cnt
   image = var.do_image
@@ -83,6 +85,63 @@ resource "digitalocean_droplet" "node" {
   ssh_keys = [var.do_ssh_fingerprint]
   monitoring = true
 }
+
+##############################
+
+resource "digitalocean_firewall" "base_fw" {
+  name = "k8s-base-fw"
+  tags = [digitalocean_tag.do_k8s.id]
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "22"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+  outbound_rule {
+    protocol              = "tcp"
+    port_range = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+  outbound_rule {
+    protocol              = "udp"
+    port_range = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+  outbound_rule {
+    protocol              = "icmp"
+    port_range = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+}
+
+resource "digitalocean_firewall" "master_fw" {
+  name = "k8s-master-fw"
+  tags = [digitalocean_tag.do_k8s_master.id]
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "1-65535"
+    source_tags  = [digitalocean_tag.do_k8s_node.id]
+  } 
+}
+
+resource "digitalocean_firewall" "node_fw" {
+  name = "k8s-node-fw"
+  tags = [digitalocean_tag.do_k8s_node.id]
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "30000-32767"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  } 
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "1-65535"
+    source_tags = [digitalocean_tag.do_k8s_master.id]
+  } 
+}
+
+##############################
 
 output "master_ips_public" {
   value = "${zipmap(digitalocean_droplet.master.*.name, digitalocean_droplet.master.*.ipv4_address)}"
