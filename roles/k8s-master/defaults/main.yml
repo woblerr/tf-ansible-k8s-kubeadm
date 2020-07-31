@@ -1,1 +1,2 @@
-flannel_src: https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
+# flannel_src: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+flannel_src: https://raw.githubusercontent.com/coreos/flannel/0806642005c10131402160b1417d517a717d9c0e/Documentation/kube-flannel.yml
