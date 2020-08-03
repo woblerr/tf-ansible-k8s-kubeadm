@@ -3,9 +3,33 @@
   gather_facts: no
   vars:
     os_user: kuber
+    reboot_required_file: "/var/run/reboot-required"
   remote_user: "{{os_user}}"
-  become: yes
+  pre_tasks:
+    - name: Test ssh for "{{ os_user }}"
+      ping: 
+      ignore_unreachable: true
+      register: test_ssh
+    - block:
+      - import_role: 
+          name: os-configure
+        remote_user: root
+      - name: Check if reboot is required
+        stat: 
+          path: "{{ reboot_required_file }}"
+          get_checksum: no
+        register: reboot_required
+      - name: Reboot server
+        reboot:
+          connect_timeout: 5
+          reboot_timeout: 120
+          pre_reboot_delay: 0
+          post_reboot_delay: 30
+          test_command: uptime
+        when: reboot_required.stat.exists
+      when:  test_ssh is unreachable
+      become: yes
   roles:
-    - { role: k8s-requirements }
-    - { role: k8s-master, when:  "inventory_hostname | regex_search(\"master-[0-9]\")" }
-    - { role: k8s-node, when: "inventory_hostname | regex_search(\"node-[0-9]\")" }
+    - { role: k8s-requirements, become: yes }
+    - { role: k8s-master, become: yes, when:  "inventory_hostname | regex_search(\"master-[0-9]\")" }
+    - { role: k8s-node, become: yes, when: "inventory_hostname | regex_search(\"node-[0-9]\")" }

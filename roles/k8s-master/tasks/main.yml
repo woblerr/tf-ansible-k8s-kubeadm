@@ -1,18 +1,15 @@
 ---
 - name: Initialize the cluster
-  become: yes
   shell: kubeadm init --apiserver-advertise-address={{ hostvars[groups['master'][0]].ipv4_address_private }} --pod-network-cidr=10.244.0.0/16 > cluster_initialized.log
   args:
     chdir: "/home/{{os_user}}"
     creates: cluster_initialized.log
 - name: Change owner for log
-  become: yes
   file:
     path: "/home/{{os_user}}/cluster_initialized.log"
     owner: "{{os_user}}"
     group: docker
 - name: Create .kube directory
-  become: yes
   become_user: "{{ os_user }}"
   file:
     path: "/home/{{ os_user }}/.kube"
@@ -25,7 +22,6 @@
     remote_src: yes
     owner: "{{ os_user }}"
 - name: Install Pod network
-  become: yes
   become_user: "{{os_user}}"
   shell: kubectl apply -f {{ flannel_src }} > pod_network_setup.log
   args:

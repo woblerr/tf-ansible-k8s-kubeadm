@@ -1,12 +1,42 @@
 ---
-- name: Test ssh for "{{ os_user }}"
-  ping: 
-  ignore_unreachable: true
-  register: test_ssh
-- import_tasks: os-configure.yml
-  become: true
-  remote_user: root
-  when:  test_ssh is unreachable
-- import_tasks: k8s-dependencies.yml
+- name: Add Kubernetes apt-key
+  apt_key:
+    url: "{{kube_apt_key}}"
+    state: present
+- name: Add Kubernetes APT repository
+  apt_repository:
+    repo: "{{kube_repo}}"
+    state: present
+    filename: 'kubernetes'
+- name: Install packages
+  apt:
+    name:
+      - docker.io
+      - apt-transport-https
+      - bash-completion
+      - kubelet={{ k8s_version }}
+      - kubeadm={{ k8s_version }}
+      - kubectl={{ k8s_version }}
+    state: present
+    update_cache: yes
+- name: Hold packages version
+  dpkg_selections:
+    name: "{{ item}}"
+    selection: hold
+  loop:
+      - kubelet
+      - kubeadm
+      - kubectl
+- name: Configure Docker
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+  notify:
+    - restart docker
+- name: Add kubecl bash completion
+  lineinfile: 
+    path: /home/{{ os_user }}/.bashrc
+    create: yes
+    line: 'source <(kubectl completion bash)'
 - name: Execute handlers
   meta: "flush_handlers"

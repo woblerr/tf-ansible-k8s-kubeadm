@@ -1,0 +1,19 @@
+---
+- name: Password based logins are disabled - only public key based logins are allowed
+  lineinfile: 
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^#?AuthenticationMethods', line: 'AuthenticationMethods publickey' }
+    - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+    - { regexp: '^#?ChallengeResponseAuthentication', line: 'ChallengeResponseAuthentication no' }
+    - { regexp: '^#?PubkeyAuthentication', line: 'PubkeyAuthentication yes' }
+    - { regexp: '^AllowUsers', line: "AllowUsers {{os_user}}" }
+    - { regexp: '^PermitRootLogin', line: 'PermitRootLogin no' }
+  register: sshd_config
+- name: restart ssh
+  service:
+     name: sshd
+     state: restarted
+  when: sshd_config.changed

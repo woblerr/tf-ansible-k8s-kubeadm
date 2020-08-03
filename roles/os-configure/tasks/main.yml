@@ -1,0 +1,13 @@
+---
+- import_tasks: update-packages.yml
+- import_tasks: create-user.yml
+- import_tasks: configure-ssh.yml
+- name: Disable SWAP in fstab
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+- name: Delete root keys
+  file: 
+    path: /root/.ssh
+    state: absent

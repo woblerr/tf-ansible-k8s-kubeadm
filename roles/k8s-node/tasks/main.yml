@@ -1,7 +1,11 @@
 ---
 - name: Join node to cluster
   shell: "{{ hostvars[groups['master'][0]]['join_command'] }} > node_joined.log"
-  become: true
   args:
     chdir: /home/{{os_user}}
     creates: node_joined.log
+- name: Change owner for log
+  file:
+    path: "/home/{{os_user}}/node_joined.log"
+    owner: "{{os_user}}"
+    group: docker
