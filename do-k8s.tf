@@ -36,7 +36,7 @@ variable "do_master_size" {
 variable "do_node_size" {
   description = "Default node size"
   type = string
-  default = "s-1vcpu-1gb"
+  default = "s-2vcpu-2gb"
 }
 
 ##############################
