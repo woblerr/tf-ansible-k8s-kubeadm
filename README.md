@@ -43,7 +43,7 @@ Droplet parameters in `do-k8s.tf` (see <https://slugs.do-api.dev/> for more info
 |do_region|Default DO region|ams2|
 |do_image|Default DO image|ubuntu-18-04-x64|
 |do_master_size|Default master size|s-2vcpu-2gb|
-|do_node_size|Default node size|s-1vcpu-1gb|
+|do_node_size|Default node size|s-2vcpu-2gb|
 
 The number of working nodes can be set in the file `variables.tf`:
 
