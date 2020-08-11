@@ -12,7 +12,7 @@
     - { regexp: '^AllowUsers', line: "AllowUsers {{os_user}}" }
     - { regexp: '^PermitRootLogin', line: 'PermitRootLogin no' }
   register: sshd_config
-- name: restart ssh
+- name: Restart ssh
   service:
      name: sshd
      state: restarted

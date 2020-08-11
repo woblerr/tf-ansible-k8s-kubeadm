@@ -1,7 +1,10 @@
 ---
 - import_tasks: update-packages.yml
+- import_tasks: configure-iptables.yml
 - import_tasks: create-user.yml
 - import_tasks: configure-ssh.yml
+- name: Disable SWAP
+  shell: swapoff -a
 - name: Disable SWAP in fstab
   replace:
     path: /etc/fstab
