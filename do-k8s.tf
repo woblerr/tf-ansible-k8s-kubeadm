@@ -54,8 +54,8 @@ resource "digitalocean_tag" "do_k8s_node" {
 }
 
 resource "digitalocean_vpc" "k8s_vpc" {
-  name     = "k8s-vpc"
-  region   = var.do_region
+  name = "k8s-vpc"
+  region = var.do_region
 }
 
 ##############################
@@ -93,36 +93,37 @@ resource "digitalocean_firewall" "base_fw" {
   tags = [digitalocean_tag.do_k8s.id]
 
   inbound_rule {
-    protocol         = "tcp"
-    port_range       = "22"
+    protocol = "tcp"
+    port_range = "22"
     source_addresses = ["0.0.0.0/0"]
   }
-  outbound_rule {
-    protocol              = "tcp"
-    port_range = "1-65535"
-    destination_addresses = ["0.0.0.0/0"]
-  }
-  outbound_rule {
-    protocol              = "udp"
-    port_range = "1-65535"
-    destination_addresses = ["0.0.0.0/0"]
-  }
-  outbound_rule {
-    protocol              = "icmp"
-    port_range = "1-65535"
-    destination_addresses = ["0.0.0.0/0"]
-  }
-}
-
-resource "digitalocean_firewall" "master_fw" {
-  name = "k8s-master-fw"
-  tags = [digitalocean_tag.do_k8s_master.id]
-
   inbound_rule {
-    protocol         = "tcp"
-    port_range       = "1-65535"
-    source_tags  = [digitalocean_tag.do_k8s_node.id]
+    protocol = "tcp"
+    port_range = "1-65535"
+    source_tags = [digitalocean_tag.do_k8s.id]
+    source_addresses = [digitalocean_vpc.k8s_vpc.ip_range]
+  }
+  inbound_rule {
+    protocol = "udp"
+    port_range = "1-65535"
+    source_tags = [digitalocean_tag.do_k8s.id]
+    source_addresses = [digitalocean_vpc.k8s_vpc.ip_range]
   } 
+  outbound_rule {
+    protocol = "tcp"
+    port_range = "1-65535"
+    destination_addresses = ["0.0.0.0/0"]
+  }
+  outbound_rule {
+    protocol = "udp"
+    port_range = "1-65535"
+    destination_addresses = ["0.0.0.0/0"]
+  }
+  outbound_rule {
+    protocol = "icmp"
+    port_range = "1-65535"
+    destination_addresses = ["0.0.0.0/0"]
+  }
 }
 
 resource "digitalocean_firewall" "node_fw" {
@@ -130,14 +131,9 @@ resource "digitalocean_firewall" "node_fw" {
   tags = [digitalocean_tag.do_k8s_node.id]
 
   inbound_rule {
-    protocol         = "tcp"
-    port_range       = "30000-32767"
+    protocol = "tcp"
+    port_range = "30000-32767"
     source_addresses = ["0.0.0.0/0"]
-  } 
-  inbound_rule {
-    protocol         = "tcp"
-    port_range       = "1-65535"
-    source_tags = [digitalocean_tag.do_k8s_master.id]
   } 
 }
 
