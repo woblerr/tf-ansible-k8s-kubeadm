@@ -33,6 +33,10 @@
     dest: /etc/docker/daemon.json
   notify:
     - restart docker
+- name: Configure kubelet extra_args
+  template:
+    src: kubelet.extra_args.j2
+    dest: /etc/default/kubelet
 - name: Add kubecl bash completion
   lineinfile: 
     path: /home/{{ os_user }}/.bashrc
